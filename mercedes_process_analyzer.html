@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Process Automation Analyzer — Mercedes-Benz</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#f8f9fa;color:#1a1a1a;min-height:100vh}
+:root{
+  --black:#0a0a0a;
+  --white:#ffffff;
+  --border:#e0e0e0;
+  --accent:#00adef;
+  --text-muted:#6b7280;
+  --card-bg:#ffffff;
+  --success:#16a34a;
+  --warn:#d97706;
+  --danger:#dc2626;
+}
+.app{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+.header{display:flex;align-items:center;gap:16px;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.mb-logo{width:44px;height:44px;flex-shrink:0}
+.header-text h1{font-size:18px;font-weight:600;color:var(--black);letter-spacing:-0.01em}
+.header-text p{font-size:13px;color:var(--text-muted);margin-top:2px}
+.header-badge{margin-left:auto;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;background:#e8f7ff;color:#0080b8;border:1px solid #b8e0f5}
+.section-label{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.input-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1.25rem}
+textarea{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:12px;font-size:14px;font-family:inherit;resize:vertical;min-height:110px;color:var(--black);background:#fafafa;transition:border-color .15s;line-height:1.6}
+textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+textarea::placeholder{color:#aaa}
+.example-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:#fafafa;cursor:pointer;color:var(--text-muted);transition:all .15s}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:#e8f7ff}
+.detail-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem}
+.field-group label{display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:5px}
+select{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;color:var(--black);background:#fafafa;transition:border-color .15s}
+select:focus{outline:none;border-color:var(--accent);background:#fff}
+.analyze-btn{width:100%;padding:13px;border-radius:10px;border:none;background:var(--black);color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.analyze-btn:hover{background:#222}
+.analyze-btn:disabled{background:#aaa;cursor:not-allowed}
+.loading-wrap{text-align:center;padding:3rem 1rem}
+.spinner{width:40px;height:40px;border:3px solid #e0e0e0;border-top:3px solid var(--black);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--text-muted)}
+.loading-steps{margin-top:1.5rem;display:flex;flex-direction:column;gap:8px;text-align:left;max-width:300px;margin-left:auto;margin-right:auto}
+.lstep{font-size:12px;color:#aaa;display:flex;align-items:center;gap:8px;transition:color .3s}
+.lstep.active{color:var(--black);font-weight:500}
+.lstep.done{color:var(--success)}
+.lstep-dot{width:6px;height:6px;border-radius:50%;background:#e0e0e0;flex-shrink:0;transition:background .3s}
+.lstep.active .lstep-dot{background:var(--accent)}
+.lstep.done .lstep-dot{background:var(--success)}
+.results{display:flex;flex-direction:column;gap:1.25rem}
+.score-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.score-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:1.1rem;text-align:center}
+.score-num{font-size:32px;font-weight:700;letter-spacing:-0.03em;line-height:1}
+.score-num.high{color:var(--success)}
+.score-num.med{color:var(--warn)}
+.score-num.low{color:var(--danger)}
+.score-bar{height:4px;border-radius:2px;background:#e0e0e0;margin-top:10px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:2px;transition:width 1s ease}
+.score-label{font-size:11px;color:var(--text-muted);margin-top:4px;font-weight:500}
+.result-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.result-card-head{padding:12px 16px;background:#f8f9fa;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.result-card-head h3{font-size:13px;font-weight:600;color:var(--black)}
+.rc-icon{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.result-card-body{padding:1rem 1.25rem}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
+.tag-blue{background:#e8f7ff;color:#0080b8;border:1px solid #b8e0f5}
+.tag-green{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+.tag-amber{background:#fef3c7;color:#b45309;border:1px solid #fde68a}
+.tag-gray{background:#f3f4f6;color:#4b5563;border:1px solid #e5e7eb}
+.ai-output{background:#f8f9fa;border-left:2px solid #378ADD;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-top:.75rem;font-size:13px;color:#374151;line-height:1.6}
+.process-step{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0}
+.process-step:last-child{border-bottom:none}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--black);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-content h4{font-size:13px;font-weight:600;color:var(--black);margin-bottom:3px}
+.step-content p{font-size:12px;color:var(--text-muted);line-height:1.5}
+.step-auto-badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;margin-top:4px;font-weight:600}
+.auto-yes{background:#dcfce7;color:#15803d}
+.auto-no{background:#f3f4f6;color:#6b7280}
+.auto-partial{background:#fef3c7;color:#b45309}
+.flow-wrap{display:flex;flex-direction:column;gap:6px}
+.flow-step{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:#f8f9fa;border:1px solid var(--border)}
+.flow-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.flow-text h5{font-size:12px;font-weight:600;color:var(--black)}
+.flow-text p{font-size:11px;color:var(--text-muted)}
+.flow-arrow{text-align:center;color:#ccc;font-size:14px}
+.flow-connector-type{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;background:#e8f7ff;color:#0080b8;white-space:nowrap}
+.hint-list{display:flex;flex-direction:column;gap:8px}
+.hint{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:8px;background:#fafafa}
+.hint-num{font-size:11px;font-weight:700;color:var(--text-muted);width:18px;flex-shrink:0;padding-top:1px}
+.hint-text{font-size:13px;color:var(--black);line-height:1.5}
+.action-row{display:flex;gap:10px;margin-top:.25rem}
+.action-btn{flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:500;cursor:pointer;color:var(--black);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.action-btn:hover{border-color:var(--black);background:#f8f9fa}
+.action-btn.primary{background:var(--black);color:#fff;border-color:var(--black)}
+.action-btn.primary:hover{background:#333}
+.prose{font-size:13px;line-height:1.7;color:#374151}
+.hidden{display:none}
+.api-notice{text-align:center;padding:2rem;background:#fff8ed;border:1px solid #fde68a;border-radius:12px;margin-bottom:1.25rem}
+.api-notice h3{font-size:15px;font-weight:600;color:#92400e;margin-bottom:8px}
+.api-notice p{font-size:13px;color:#78350f;line-height:1.6}
+.api-notice input{width:100%;margin-top:12px;padding:9px 12px;border:1.5px solid #fde68a;border-radius:8px;font-size:13px;font-family:inherit;background:#fffbeb}
+.api-notice input:focus{outline:none;border-color:#f59e0b}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <svg class="mb-logo" viewBox="0 0 44 44" fill="none">
+      <circle cx="22" cy="22" r="21" stroke="#0a0a0a" stroke-width="2"/>
+      <circle cx="22" cy="22" r="17" stroke="#0a0a0a" stroke-width="1"/>
+      <line x1="22" y1="5" x2="22" y2="22" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
+      <line x1="22" y1="22" x2="34" y2="31" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
+      <line x1="22" y1="22" x2="10" y2="31" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <div class="header-text">
+      <h1>AI Process Automation Analyzer</h1>
+      <p>Identify automation potential · Generate Power Automate flows · Create presentation concepts</p>
+    </div>
+    <div class="header-badge">✦ KI & Automatisierung</div>
+  </div>
+
+  <!-- API Key notice for local use -->
+  <div class="api-notice" id="api-notice">
+    <h3>🔑 Add your Anthropic API key to use locally</h3>
+    <p>This tool uses Claude AI. Paste your API key below — it stays in your browser only, never sent anywhere else.<br>Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:#0080b8">console.anthropic.com</a></p>
+    <input type="password" id="api-key-input" placeholder="sk-ant-..." oninput="checkKey()"/>
+  </div>
+
+  <div id="form-section">
+    <div class="input-card">
+      <div class="section-label">Business process description</div>
+      <textarea id="process-input" placeholder="Describe your business process in detail. E.g.: 'Every Monday, our procurement team manually downloads supplier invoices from 3 different email inboxes, enters the data into SAP, checks for duplicates in Excel, then sends approval emails to 4 department heads...'"></textarea>
+      <div class="example-chips">
+        <span style="font-size:11px;color:#aaa;margin-right:2px">Try:</span>
+        <div class="chip" onclick="fillExample(0)">Invoice approval workflow</div>
+        <div class="chip" onclick="fillExample(1)">Supplier onboarding</div>
+        <div class="chip" onclick="fillExample(2)">Quality report generation</div>
+        <div class="chip" onclick="fillExample(3)">Meeting notes & follow-ups</div>
+      </div>
+    </div>
+    <div class="detail-row">
+      <div class="field-group">
+        <label>Department / area</label>
+        <select id="dept-select">
+          <option>Einkauf / Procurement</option>
+          <option>Qualitätssicherung</option>
+          <option>Finance & Controlling</option>
+          <option>HR / People</option>
+          <option>IT & Digitalisierung</option>
+          <option>Vertrieb / Sales</option>
+          <option>Logistik / Supply Chain</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Estimated manual effort per month</label>
+        <select id="effort-select">
+          <option>2–5 hours</option>
+          <option>5–15 hours</option>
+          <option selected>15–40 hours</option>
+          <option>40–100 hours</option>
+          <option>100+ hours</option>
+        </select>
+      </div>
+    </div>
+    <button class="analyze-btn" onclick="runAnalysis()" id="analyze-btn">
+      ⚡ Analyze process with AI
+    </button>
+    <div style="text-align:center;margin-top:10px;font-size:11px;color:#aaa">Powered by Claude (Anthropic) · No data stored</div>
+  </div>
+
+  <div id="loading-section" class="hidden">
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <div class="loading-text">Analyzing your process...</div>
+      <div class="loading-steps">
+        <div class="lstep active" id="ls1"><div class="lstep-dot"></div>Understanding process structure</div>
+        <div class="lstep" id="ls2"><div class="lstep-dot"></div>Identifying automation potential</div>
+        <div class="lstep" id="ls3"><div class="lstep-dot"></div>Designing Power Automate flow</div>
+        <div class="lstep" id="ls4"><div class="lstep-dot"></div>Generating presentation concept</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="results-section" class="hidden">
+    <div class="results" id="results-content"></div>
+    <div class="action-row" style="margin-top:1.25rem">
+      <button class="action-btn" onclick="copyResults()">📋 Copy analysis</button>
+      <button class="action-btn primary" onclick="resetForm()">↩ Analyze another process</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const EXAMPLES = [
+  "Every Monday, the procurement team downloads supplier invoices from 3 email inboxes, manually enters data into SAP, checks for duplicates in an Excel spreadsheet, and sends approval request emails to 4 department heads. They wait for replies, then update a SharePoint list and archive the PDFs in a folder. This takes about 6 hours every week.",
+  "When a new supplier wants to work with Mercedes-Benz, the responsible buyer collects documents via email (commercial register, insurance, bank details, ISO certificates). They check completeness manually, enter the data into our ERP system, send a welcome email, and schedule an onboarding call. Missing documents are chased up individually. The process takes 2–3 days per supplier.",
+  "After each production shift, quality engineers collect defect data from 5 different machines, copy numbers into Excel, calculate KPIs manually, and create a PowerPoint report. This report is emailed to 12 managers every morning. If a threshold is exceeded, a separate escalation email is sent. The entire process takes 2.5 hours per day.",
+  "After every internal and external meeting, the responsible person writes meeting minutes manually in Word, copies action items into a shared Excel tracker, sends summary emails to all participants, and schedules follow-up calendar invites one by one. Often action items are lost or forgotten. This takes 45–60 minutes per meeting."
+];
+
+function fillExample(i){ document.getElementById('process-input').value = EXAMPLES[i]; }
+
+function checkKey(){
+  const k = document.getElementById('api-key-input').value.trim();
+  if(k.startsWith('sk-ant-') && k.length > 20){
+    document.getElementById('api-notice').style.borderColor='#bbf7d0';
+    document.getElementById('api-notice').style.background='#f0fdf4';
+  }
+}
+
+function getApiKey(){
+  return document.getElementById('api-key-input').value.trim();
+}
+
+let stepTimer;
+function animateSteps(){
+  const steps=['ls1','ls2','ls3','ls4']; let i=0;
+  function next(){
+    if(i>0){const p=document.getElementById(steps[i-1]);p.classList.remove('active');p.classList.add('done');}
+    if(i<steps.length){const c=document.getElementById(steps[i]);c.classList.add('active');i++;stepTimer=setTimeout(next,1800);}
+  }
+  next();
+}
+function resetSteps(){
+  clearTimeout(stepTimer);
+  ['ls1','ls2','ls3','ls4'].forEach(id=>{const el=document.getElementById(id);el.classList.remove('active','done');});
+  document.getElementById('ls1').classList.add('active');
+}
+
+async function runAnalysis(){
+  const process=document.getElementById('process-input').value.trim();
+  if(!process||process.length<30){alert('Please describe the business process in more detail.');return;}
+  const apiKey=getApiKey();
+  if(!apiKey||!apiKey.startsWith('sk-ant-')){alert('Please enter a valid Anthropic API key above.');return;}
+  const dept=document.getElementById('dept-select').value;
+  const effort=document.getElementById('effort-select').value;
+
+  document.getElementById('form-section').classList.add('hidden');
+  document.getElementById('results-section').classList.add('hidden');
+  document.getElementById('loading-section').classList.remove('hidden');
+  resetSteps(); animateSteps();
+
+  const prompt=`You are an AI & Automation consultant at Mercedes-Benz. Analyze the following business process and return a JSON object ONLY — no markdown fences, no explanation, just raw JSON.
+
+Process: "${process}"
+Department: ${dept}
+Monthly manual effort: ${effort}
+
+Return this exact JSON structure:
+{
+  "automation_score": <0-100 integer>,
+  "roi_score": <0-100 integer>,
+  "complexity_score": <0-100 integer>,
+  "summary": "<2 sentence summary of the process and its pain points>",
+  "pain_points": ["<pain point 1>","<pain point 2>","<pain point 3>"],
+  "tools": ["<tool1>","<tool2>","<tool3>"],
+  "process_steps": [
+    {"step":"<name>","description":"<what happens>","automatable":"yes|partial|no","tool":"<suggested tool>"},
+    {"step":"<name>","description":"<what happens>","automatable":"yes|partial|no","tool":"<suggested tool>"},
+    {"step":"<name>","description":"<what happens>","automatable":"yes|partial|no","tool":"<suggested tool>"},
+    {"step":"<name>","description":"<what happens>","automatable":"yes|partial|no","tool":"<suggested tool>"}
+  ],
+  "power_automate_flow": [
+    {"icon":"<emoji>","name":"<step>","connector":"<e.g. Outlook, SharePoint, SAP>","description":"<what it does>"},
+    {"icon":"<emoji>","name":"<step>","connector":"<connector>","description":"<what it does>"},
+    {"icon":"<emoji>","name":"<step>","connector":"<connector>","description":"<what it does>"},
+    {"icon":"<emoji>","name":"<step>","connector":"<connector>","description":"<what it does>"},
+    {"icon":"<emoji>","name":"<step>","connector":"<connector>","description":"<what it does>"}
+  ],
+  "time_saved_monthly_hours": <integer>,
+  "presentation_points": [
+    "<slide 1 talking point for non-technical audience>",
+    "<slide 2 talking point>",
+    "<slide 3 talking point>",
+    "<slide 4 talking point>"
+  ],
+  "copilot_use_case": "<1 sentence: how Microsoft Copilot or ChatGPT could help in this process>"
+}`;
+
+  try{
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1500,messages:[{role:"user",content:prompt}]})
+    });
+    const data=await resp.json();
+    if(data.error){throw new Error(data.error.message);}
+    const raw=data.content.map(b=>b.text||"").join("");
+    const clean=raw.replace(/```json|```/g,"").trim();
+    const parsed=JSON.parse(clean);
+    clearTimeout(stepTimer);
+    document.getElementById('loading-section').classList.add('hidden');
+    document.getElementById('results-section').classList.remove('hidden');
+    renderResults(parsed);
+  }catch(e){
+    clearTimeout(stepTimer);
+    document.getElementById('loading-section').classList.add('hidden');
+    document.getElementById('form-section').classList.remove('hidden');
+    alert("Error: "+e.message+"\n\nCheck your API key and try again.");
+  }
+}
+
+function scoreClass(n){return n>=70?'high':n>=40?'med':'low';}
+function scoreColor(n){return n>=70?'#16a34a':n>=40?'#d97706':'#dc2626';}
+
+function renderResults(d){
+  const c=document.getElementById('results-content');
+  const toolTags=(d.tools||[]).map(t=>`<span class="tag tag-blue">${t}</span>`).join('');
+  const painTags=(d.pain_points||[]).map(p=>`<span class="tag tag-amber">${p}</span>`).join('');
+  const stepsHTML=(d.process_steps||[]).map((s,i)=>{
+    const badge=s.automatable==='yes'?`<span class="step-auto-badge auto-yes">✓ Automatable</span>`:s.automatable==='partial'?`<span class="step-auto-badge auto-partial">⟳ Partially</span>`:`<span class="step-auto-badge auto-no">Manual</span>`;
+    return`<div class="process-step"><div class="step-num">${i+1}</div><div class="step-content"><h4>${s.step}</h4><p>${s.description}</p>${badge} ${s.tool?`<span class="tag tag-gray" style="margin-left:4px;font-size:10px">${s.tool}</span>`:''}</div></div>`;
+  }).join('');
+  const flowHTML=(d.power_automate_flow||[]).map((f,i,arr)=>`<div class="flow-step"><div class="flow-icon" style="background:#e8f7ff;font-size:18px">${f.icon||'⚙️'}</div><div class="flow-text" style="flex:1"><h5>${f.name}</h5><p>${f.description}</p></div><div class="flow-connector-type">${f.connector}</div></div>${i<arr.length-1?'<div class="flow-arrow">↓</div>':''}`).join('');
+  const hintsHTML=(d.presentation_points||[]).map((p,i)=>`<div class="hint"><div class="hint-num">${i+1}</div><div class="hint-text">${p}</div></div>`).join('');
+
+  c.innerHTML=`
+    <div class="score-row">
+      <div class="score-card"><div class="score-num ${scoreClass(d.automation_score)}" id="s1">0</div><div class="score-label">Automation potential</div><div class="score-bar"><div class="score-bar-fill" style="width:0%;background:${scoreColor(d.automation_score)}" id="sb1"></div></div></div>
+      <div class="score-card"><div class="score-num ${scoreClass(d.roi_score)}" id="s2">0</div><div class="score-label">ROI potential</div><div class="score-bar"><div class="score-bar-fill" style="width:0%;background:${scoreColor(d.roi_score)}" id="sb2"></div></div></div>
+      <div class="score-card"><div class="score-num ${scoreClass(100-d.complexity_score)}" id="s3">0</div><div class="score-label">Ease of implementation</div><div class="score-bar"><div class="score-bar-fill" style="width:0%;background:${scoreColor(100-d.complexity_score)}" id="sb3"></div></div></div>
+    </div>
+    <div class="result-card">
+      <div class="result-card-head"><div class="rc-icon" style="background:#f0f0f0">💡</div><h3>Process summary & pain points</h3></div>
+      <div class="result-card-body">
+        <p class="prose">${d.summary}</p>
+        <div style="margin-top:12px"><div class="section-label" style="margin-bottom:6px">Recommended tools</div><div class="tag-row">${toolTags}</div></div>
+        <div style="margin-top:10px"><div class="section-label" style="margin-bottom:6px">Key pain points</div><div class="tag-row">${painTags}</div></div>
+        <div class="ai-output"><strong style="color:#0080b8">🤖 Copilot use case:</strong> ${d.copilot_use_case}</div>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="result-card-head"><div class="rc-icon" style="background:#f0f0f0">🔍</div><h3>Process step analysis</h3></div>
+      <div class="result-card-body">${stepsHTML}</div>
+    </div>
+    <div class="result-card">
+      <div class="result-card-head"><div class="rc-icon" style="background:#e8f7ff">⚡</div><h3>Suggested Power Automate flow</h3></div>
+      <div class="result-card-body">
+        <div class="flow-wrap">${flowHTML}</div>
+        <div style="margin-top:12px;padding:8px 12px;border-radius:8px;background:#dcfce7;border:1px solid #bbf7d0;font-size:12px;color:#15803d"><strong>Estimated time saved:</strong> ~${d.time_saved_monthly_hours} hours/month</div>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="result-card-head"><div class="rc-icon" style="background:#fef3c7">📊</div><h3>Presentation concept — for non-technical stakeholders</h3></div>
+      <div class="result-card-body"><div class="hint-list">${hintsHTML}</div></div>
+    </div>`;
+
+  setTimeout(()=>{
+    animateNum('s1',d.automation_score);animateNum('s2',d.roi_score);animateNum('s3',100-d.complexity_score);
+    setTimeout(()=>{document.getElementById('sb1').style.width=d.automation_score+'%';document.getElementById('sb2').style.width=d.roi_score+'%';document.getElementById('sb3').style.width=(100-d.complexity_score)+'%';},200);
+  },100);
+}
+
+function animateNum(id,target){
+  let cur=0;const el=document.getElementById(id);const step=Math.ceil(target/30);
+  const t=setInterval(()=>{cur=Math.min(cur+step,target);el.textContent=cur;if(cur>=target)clearInterval(t);},30);
+}
+function copyResults(){navigator.clipboard.writeText(document.getElementById('results-content').innerText).then(()=>alert('Copied!'));}
+function resetForm(){document.getElementById('results-section').classList.add('hidden');document.getElementById('form-section').classList.remove('hidden');document.getElementById('process-input').value='';}
+</script>
+</body>
+</html>
