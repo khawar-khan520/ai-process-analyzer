@@ -148,19 +148,6 @@ start mercedes_process_analyzer.html   # Windows
 
 ---
 
-## 🔑 API Key setup
-
-This tool calls the [Anthropic Claude API](https://docs.anthropic.com) directly from your browser.
-
-1. Create a free account at [console.anthropic.com](https://console.anthropic.com)
-2. Go to **API Keys** → **Create Key**
-3. Paste the key (`sk-ant-...`) into the tool's key field
-4. Your key is never stored or sent anywhere — it lives only in your browser session
-
-> **Cost:** A typical analysis uses ~800 tokens ≈ €0.002. A full demo session costs less than €0.05.
-
----
-
 ## 🛠️ Tech stack
 
 | Layer | Technology |
@@ -195,7 +182,7 @@ Click any chip in the tool to load a pre-filled example:
 
 ## 👤 Author
 
-Built by [Your Name] · Masters in Informatics & ML  
-[LinkedIn](#) · [GitHub](#)
+Built by KHAWAR KHAN · Masters in Informatics & ML  
+[LinkedIn] (#https://www.linkedin.com/in/khawar-khan-05089634a/)
 
 *Created as a Proof-of-Concept for the Mercedes-Benz KI & Automatisierung Praktikum application.*
