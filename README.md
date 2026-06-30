@@ -1,6 +1,6 @@
 [README.md](https://github.com/user-attachments/files/29181878/README.md)
 # 🚗 AI Process Automation Analyzer
-### Built for Mercedes-Benz — KI & Automatisierung Internship
+### Built for  — KI & Automatisierung Internship
 
 A browser-based AI tool that analyzes any business process, scores its automation potential, generates a ready-to-use **Power Automate flow**, and creates a **presentation concept for non-technical stakeholders** — all in under 30 seconds.
 
